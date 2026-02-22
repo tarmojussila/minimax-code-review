@@ -8,6 +8,10 @@ inputs:
     description: "MiniMax AI model"
     required: false
     default: "MiniMax-M2.5"
+  GITHUB_TOKEN:
+    description: "GitHub token for posting PR comments"
+    required: false
+    default: ${{ github.token }}
 runs:
   using: "node20"
   main: "dist/index.js"

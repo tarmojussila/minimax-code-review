@@ -31900,7 +31900,7 @@ async function run() {
   try {
     const apiKey = core.getInput('MINIMAX_API_KEY', { required: true });
     const model = core.getInput('MINIMAX_MODEL') || 'MiniMax-M2.5';
-    const token = process.env.GITHUB_TOKEN;
+    const token = core.getInput('GITHUB_TOKEN') || process.env.GITHUB_TOKEN;
 
     const octokit = github.getOctokit(token);
     const context = github.context;
