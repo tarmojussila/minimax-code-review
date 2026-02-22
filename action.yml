@@ -9,7 +9,7 @@ inputs:
     required: false
     default: "MiniMax-M2.5"
   GITHUB_TOKEN:
-    description: "GitHub token for posting PR comments"
+    description: "GitHub token for API access"
     required: false
     default: ${{ github.token }}
 runs:
