@@ -20,15 +20,26 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: tarmojussila/minimax-code-review@v1
+      - uses: tarmojussila/minimax-code-review@main
         with:
-          api_key: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
+
+## Inputs
+
+| Input | Required | Default | Description |
+|---|---|---|---|
+| `MINIMAX_API_KEY` | Yes | — | Your MiniMax API key |
+| `MINIMAX_MODEL` | No | `MiniMax-M2.5` | MiniMax model to use for review |
 
 ## Configuration
 
