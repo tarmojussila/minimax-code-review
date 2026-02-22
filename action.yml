@@ -1,0 +1,16 @@
+name: "MiniMax Code Review"
+description: "AI-powered PR code review using MiniMax models"
+inputs:
+  MINIMAX_API_KEY:
+    description: "MiniMax API key"
+    required: true
+  MINIMAX_MODEL:
+    description: "MiniMax AI model"
+    required: false
+    default: "MiniMax-M2.5"
+runs:
+  using: "node20"
+  main: "dist/index.js"
+branding:
+  icon: "check-circle"
+  color: "purple"
