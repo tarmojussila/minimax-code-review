@@ -1,6 +1,6 @@
 {
   "name": "minimax-code-review",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "AI-powered code review GitHub Action using MiniMax",
   "main": "dist/index.js",
   "scripts": {
