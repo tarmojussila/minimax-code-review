@@ -5,10 +5,12 @@ on:
     types: [opened, synchronize]
 
 permissions:
+  contents: read
   pull-requests: write
 
 jobs:
   review:
+    name: Review
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
