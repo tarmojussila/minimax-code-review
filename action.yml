@@ -1,5 +1,5 @@
 name: "MiniMax Code Review"
-description: "AI-powered PR code review using MiniMax models"
+description: "AI-powered code review using MiniMax models"
 inputs:
   MINIMAX_API_KEY:
     description: "MiniMax API key"
