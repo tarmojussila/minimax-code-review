@@ -11,10 +11,10 @@ AI-powered GitHub Pull Request code review using MiniMax models. Automatic PR co
 
 ## Quickstart
 
-Add this to your `.github/workflows/ai-review.yml`:
+Add this to your `.github/workflows/code-review.yml`:
 
 ```yaml
-name: AI Code Review
+name: AI Code Review with MiniMax
 
 on:
   pull_request:
@@ -26,10 +26,13 @@ permissions:
 
 jobs:
   review:
+    name: Review
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: tarmojussila/minimax-code-review@main
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Code Review
+        uses: tarmojussila/minimax-code-review@v0.1.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
