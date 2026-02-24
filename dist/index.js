@@ -31839,15 +31839,7 @@ const github = __nccwpck_require__(3228);
 
 const MINIMAX_API_URL = 'https://api.minimaxi.chat/v1/chat/completions';
 
-const SYSTEM_PROMPT = `You are an expert code reviewer. Review the following pull request diff and provide constructive feedback.
-Focus on:
-- Bugs and logical errors
-- Security vulnerabilities
-- Performance issues
-- Code quality and readability
-- Best practices
-
-Be concise, specific, and actionable. Reference file names and line numbers where relevant.`;
+const DEFAULT_SYSTEM_PROMPT = 'You are an expert code reviewer. Review the provided code changes and give clear, actionable feedback.';
 
 async function getDiff(octokit, owner, repo, pull_number) {
   const { data: files } = await octokit.rest.pulls.listFiles({
@@ -31862,7 +31854,7 @@ async function getDiff(octokit, owner, repo, pull_number) {
     .join('\n\n');
 }
 
-async function reviewWithMiniMax(apiKey, model, diff) {
+async function reviewWithMiniMax(apiKey, model, systemPrompt, diff) {
   const response = await fetch(MINIMAX_API_URL, {
     method: 'POST',
     headers: {
@@ -31872,7 +31864,7 @@ async function reviewWithMiniMax(apiKey, model, diff) {
     body: JSON.stringify({
       model,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: `Please review this pull request:\n\n${diff}` },
       ],
     }),
@@ -31899,7 +31891,9 @@ async function postReview(octokit, owner, repo, pull_number, review) {
 async function run() {
   try {
     const apiKey = core.getInput('MINIMAX_API_KEY', { required: true });
+    core.setSecret(apiKey);
     const model = core.getInput('MINIMAX_MODEL') || 'MiniMax-M2.5';
+    const systemPrompt = core.getInput('MINIMAX_SYSTEM_PROMPT') || DEFAULT_SYSTEM_PROMPT;
     const token = core.getInput('GITHUB_TOKEN') || process.env.GITHUB_TOKEN;
 
     const octokit = github.getOctokit(token);
@@ -31922,7 +31916,7 @@ async function run() {
       return;
     }
 
-    const review = await reviewWithMiniMax(apiKey, model, diff);
+    const review = await reviewWithMiniMax(apiKey, model, systemPrompt, diff);
     await postReview(octokit, owner, repo, pull_number, review);
 
     core.info('Code review posted successfully.');
