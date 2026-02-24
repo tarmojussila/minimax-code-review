@@ -32,7 +32,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.1.0
+        uses: tarmojussila/minimax-code-review@v0.2.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
@@ -43,6 +43,15 @@ jobs:
 |---|---|---|---|
 | `MINIMAX_API_KEY` | Yes | — | Your MiniMax API key |
 | `MINIMAX_MODEL` | No | `MiniMax-M2.5` | MiniMax model to use for review |
+| `MINIMAX_SYSTEM_PROMPT` | No | See below | Custom system prompt for the AI reviewer |
+
+The default system prompt is:
+
+> You are an expert code reviewer. Review the provided code changes and give clear, actionable feedback.
+
+You can override it to focus on specific concerns, enforce coding standards, or adjust the review tone, e.g.:
+
+> You are a security-focused code reviewer. Identify vulnerabilities, unsafe patterns, and authentication issues. Skip style comments.
 
 ## Configuration
 
@@ -54,16 +63,38 @@ Generate an API key from your MiniMax dashboard.
 
 ### 2️⃣ Add the API key to your repository
 
-1. Go to your GitHub repository  
-2. Click **Settings**  
+1. Go to your GitHub repository
+2. Click **Settings**
 3. Navigate to **Secrets and variables → Actions**  
-4. Click **New repository secret**  
-5. Add:
+4. Click **New repository secret** and add:
 
-   - **Name:** `MINIMAX_API_KEY`  
-   - **Value:** your MiniMax API key  
+   - **Name:** `MINIMAX_API_KEY` — **Value:** your MiniMax API key
 
-6. Click **Save**
+## Advanced configuration
+
+Instead of using default values for `MINIMAX_MODEL` and `MINIMAX_SYSTEM_PROMPT`, you can override them, and manage them as GitHub Actions variables. This lets you update the model or review prompt without touching the workflow file.
+
+### 1️⃣ Add the variables to your repository
+
+1. Go to your GitHub repository
+2. Click **Settings**
+3. Navigate to **Secrets and variables → Actions**
+4. Click the **Variables** tab
+5. Click **New repository variable** and add:
+
+   - **Name:** `MINIMAX_MODEL` — **Value:** e.g. `MiniMax-M2.5`
+   - **Name:** `MINIMAX_SYSTEM_PROMPT` — **Value:** your custom system prompt
+
+### 2️⃣ Reference them in your workflow
+
+```yaml
+      - name: Code Review
+        uses: tarmojussila/minimax-code-review@v0.2.0
+        with:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL }}
+          MINIMAX_SYSTEM_PROMPT: ${{ vars.MINIMAX_SYSTEM_PROMPT }}
+```
 
 ## Contributing
 

@@ -8,6 +8,10 @@ inputs:
     description: "MiniMax AI model"
     required: false
     default: "MiniMax-M2.5"
+  MINIMAX_SYSTEM_PROMPT:
+    description: "Custom system prompt for the AI reviewer"
+    required: false
+    default: "You are an expert code reviewer. Review the provided code changes and give clear, actionable feedback."
   GITHUB_TOKEN:
     description: "GitHub token for API access"
     required: false

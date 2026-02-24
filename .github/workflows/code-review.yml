@@ -16,7 +16,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.1.0
+        uses: tarmojussila/minimax-code-review@v0.2.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL }}
+          MINIMAX_SYSTEM_PROMPT: ${{ vars.MINIMAX_SYSTEM_PROMPT }}
