@@ -12,6 +12,10 @@ inputs:
     description: "Custom system prompt for the AI reviewer"
     required: false
     default: "You are an expert code reviewer. Review the provided code changes and give clear, actionable feedback."
+  MINIMAX_REVIEWER_NAME:
+    description: "Name shown in the review comment header"
+    required: false
+    default: "MiniMax Code Review"
   GITHUB_TOKEN:
     description: "GitHub token for API access"
     required: false
