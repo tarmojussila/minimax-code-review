@@ -21,7 +21,6 @@ on:
     types: [opened, synchronize]
 
 permissions:
-  contents: read
   pull-requests: write
 
 jobs:
@@ -29,10 +28,8 @@ jobs:
     name: Review
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.2.0
+        uses: tarmojussila/minimax-code-review@v0.3.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
@@ -44,6 +41,7 @@ jobs:
 | `MINIMAX_API_KEY` | Yes | — | Your MiniMax API key |
 | `MINIMAX_MODEL` | No | `MiniMax-M2.5` | MiniMax model to use for review |
 | `MINIMAX_SYSTEM_PROMPT` | No | See below | Custom system prompt for the AI reviewer |
+| `MINIMAX_REVIEWER_NAME` | No | `MiniMax Code Review` | Name shown in the review comment header |
 
 The default system prompt is:
 
@@ -72,7 +70,7 @@ Generate an API key from your MiniMax dashboard.
 
 ## Advanced configuration
 
-Instead of using default values for `MINIMAX_MODEL` and `MINIMAX_SYSTEM_PROMPT`, you can override them, and manage them as GitHub Actions variables. This lets you update the model or review prompt without touching the workflow file.
+Instead of using default values for `MINIMAX_MODEL`, `MINIMAX_SYSTEM_PROMPT`, and `MINIMAX_REVIEWER_NAME`, you can override them, and manage them as GitHub Actions variables. This lets you update the model, review prompt, or reviewer name without touching the workflow file.
 
 ### 1️⃣ Add the variables to your repository
 
@@ -84,16 +82,18 @@ Instead of using default values for `MINIMAX_MODEL` and `MINIMAX_SYSTEM_PROMPT`,
 
    - **Name:** `MINIMAX_MODEL` — **Value:** e.g. `MiniMax-M2.5`
    - **Name:** `MINIMAX_SYSTEM_PROMPT` — **Value:** your custom system prompt
+   - **Name:** `MINIMAX_REVIEWER_NAME` — **Value:** e.g. `AI Code Review`
 
 ### 2️⃣ Reference them in your workflow
 
 ```yaml
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.2.0
+        uses: tarmojussila/minimax-code-review@v0.3.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL }}
           MINIMAX_SYSTEM_PROMPT: ${{ vars.MINIMAX_SYSTEM_PROMPT }}
+          MINIMAX_REVIEWER_NAME: ${{ vars.MINIMAX_REVIEWER_NAME }}
 ```
 
 ## Contributing

@@ -31838,15 +31838,25 @@ const core = __nccwpck_require__(7484);
 const github = __nccwpck_require__(3228);
 
 const MINIMAX_API_URL = 'https://api.minimaxi.chat/v1/chat/completions';
-
-const DEFAULT_SYSTEM_PROMPT = 'You are an expert code reviewer. Review the provided code changes and give clear, actionable feedback.';
+const COMMENT_MARKER = '<!-- minimax-code-review -->';
+const MAX_RESPONSE_SIZE = 1024 * 1024;
+const REQUEST_TIMEOUT_MS = 300_000;
 
 async function getDiff(octokit, owner, repo, pull_number) {
-  const { data: files } = await octokit.rest.pulls.listFiles({
-    owner,
-    repo,
-    pull_number,
-  });
+  const files = [];
+  let page = 1;
+  while (true) {
+    const { data } = await octokit.rest.pulls.listFiles({
+      owner,
+      repo,
+      pull_number,
+      per_page: 100,
+      page,
+    });
+    files.push(...data);
+    if (data.length < 100) break;
+    page++;
+  }
 
   return files
     .filter(f => f.patch)
@@ -31855,49 +31865,71 @@ async function getDiff(octokit, owner, repo, pull_number) {
 }
 
 async function reviewWithMiniMax(apiKey, model, systemPrompt, diff) {
-  const response = await fetch(MINIMAX_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: `Please review this pull request:\n\n${diff}` },
-      ],
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch(MINIMAX_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `Please review this pull request:\n\n${diff}` },
+        ],
+      }),
+      signal: controller.signal,
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('MiniMax API request timed out.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`MiniMax API error ${response.status}: ${error}`);
+    throw new Error(`MiniMax API error ${response.status}: ${error.slice(0, 200)}`);
   }
 
-  const data = await response.json();
-  return data.choices[0].message.content;
-}
+  const text = await response.text();
+  if (text.length > MAX_RESPONSE_SIZE) {
+    throw new Error('MiniMax API response exceeded size limit.');
+  }
 
-async function postReview(octokit, owner, repo, pull_number, review) {
-  await octokit.rest.issues.createComment({
-    owner,
-    repo,
-    issue_number: pull_number,
-    body: `## AI Code Review (MiniMax)\n\n${review}`,
-  });
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error('MiniMax API returned invalid JSON.');
+  }
+
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('MiniMax API returned an empty response.');
+  }
+  return content;
 }
 
 async function run() {
   try {
     const apiKey = core.getInput('MINIMAX_API_KEY', { required: true });
     core.setSecret(apiKey);
-    const model = core.getInput('MINIMAX_MODEL') || 'MiniMax-M2.5';
-    const systemPrompt = core.getInput('MINIMAX_SYSTEM_PROMPT') || DEFAULT_SYSTEM_PROMPT;
-    const token = core.getInput('GITHUB_TOKEN') || process.env.GITHUB_TOKEN;
+    const model = core.getInput('MINIMAX_MODEL');
+    const systemPrompt = core.getInput('MINIMAX_SYSTEM_PROMPT');
+    const reviewerName = core.getInput('MINIMAX_REVIEWER_NAME');
+    const token = core.getInput('GITHUB_TOKEN');
+    core.setSecret(token);
 
     const octokit = github.getOctokit(token);
-    const context = github.context;
+    const { context } = github;
 
     if (context.eventName !== 'pull_request') {
       core.setFailed('This action only works on pull_request events.');
@@ -31917,7 +31949,31 @@ async function run() {
     }
 
     const review = await reviewWithMiniMax(apiKey, model, systemPrompt, diff);
-    await postReview(octokit, owner, repo, pull_number, review);
+    const body = `## ${reviewerName}\n\n${review}\n\n${COMMENT_MARKER}`;
+
+    const { data: comments } = await octokit.rest.issues.listComments({
+      owner,
+      repo,
+      issue_number: pull_number,
+    });
+
+    const existing = comments.find(c => c.body?.includes(COMMENT_MARKER));
+
+    if (existing) {
+      await octokit.rest.issues.updateComment({
+        owner,
+        repo,
+        comment_id: existing.id,
+        body,
+      });
+    } else {
+      await octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: pull_number,
+        body,
+      });
+    }
 
     core.info('Code review posted successfully.');
   } catch (error) {
