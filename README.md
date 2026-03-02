@@ -21,7 +21,6 @@ on:
     types: [opened, synchronize]
 
 permissions:
-  contents: read
   pull-requests: write
 
 jobs:
