@@ -41,7 +41,7 @@ Do not grant broader permissions than what is listed above.
 For supply chain security, pin the action to a specific release tag rather than a mutable branch name:
 
 ```yaml
-uses: tarmojussila/minimax-code-review@v0.3.0
+uses: tarmojussila/minimax-code-review@v0.4.0
 ```
 
 Avoid using branch names such as `@main` in production workflows.

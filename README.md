@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.3.0
+        uses: tarmojussila/minimax-code-review@v0.4.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
@@ -42,6 +42,8 @@ jobs:
 | `MINIMAX_MODEL` | No | `MiniMax-M2.5` | MiniMax model to use for review |
 | `MINIMAX_SYSTEM_PROMPT` | No | See below | Custom system prompt for the AI reviewer |
 | `MINIMAX_REVIEWER_NAME` | No | `MiniMax Code Review` | Name shown in the review comment header |
+| `EXCLUDE_PATTERNS` | No | `*.lock,package-lock.json,yarn.lock,pnpm-lock.yaml` | Comma-separated file patterns to exclude from review |
+| `MAX_DIFF_CHARS` | No | `0` (unlimited) | Maximum total characters for the diff sent to the API |
 
 The default system prompt is:
 
@@ -88,7 +90,7 @@ Instead of using default values for `MINIMAX_MODEL`, `MINIMAX_SYSTEM_PROMPT`, an
 
 ```yaml
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.3.0
+        uses: tarmojussila/minimax-code-review@v0.4.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL }}
