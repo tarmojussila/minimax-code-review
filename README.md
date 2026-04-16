@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.3.0
+        uses: tarmojussila/minimax-code-review@v0.4.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
 ```
@@ -88,7 +88,7 @@ Instead of using default values for `MINIMAX_MODEL`, `MINIMAX_SYSTEM_PROMPT`, an
 
 ```yaml
       - name: Code Review
-        uses: tarmojussila/minimax-code-review@v0.3.0
+        uses: tarmojussila/minimax-code-review@v0.4.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
           MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL }}
