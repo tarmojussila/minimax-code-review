@@ -42,6 +42,8 @@ jobs:
 | `MINIMAX_MODEL` | No | `MiniMax-M2.5` | MiniMax model to use for review |
 | `MINIMAX_SYSTEM_PROMPT` | No | See below | Custom system prompt for the AI reviewer |
 | `MINIMAX_REVIEWER_NAME` | No | `MiniMax Code Review` | Name shown in the review comment header |
+| `EXCLUDE_PATTERNS` | No | `*.lock,package-lock.json,yarn.lock,pnpm-lock.yaml` | Comma-separated file patterns to exclude from review |
+| `MAX_DIFF_CHARS` | No | `0` (unlimited) | Maximum total characters for the diff sent to the API |
 
 The default system prompt is:
 
