@@ -16,6 +16,14 @@ inputs:
     description: "Name shown in the review comment header"
     required: false
     default: "MiniMax Code Review"
+  EXCLUDE_PATTERNS:
+    description: "Comma-separated file patterns to exclude from review (e.g. '*.lock,dist/**,*.min.js')"
+    required: false
+    default: "*.lock,package-lock.json,yarn.lock,pnpm-lock.yaml"
+  MAX_DIFF_CHARS:
+    description: "Maximum total characters for the diff sent to the API (0 = unlimited)"
+    required: false
+    default: "0"
   GITHUB_TOKEN:
     description: "GitHub token for API access"
     required: false
