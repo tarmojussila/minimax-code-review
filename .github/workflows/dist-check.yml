@@ -1,0 +1,32 @@
+name: dist check
+
+# CONTRIBUTING.md requires dist/ to be committed — the Actions runner executes
+# dist/index.js directly and does not run npm install or a build step. This job
+# verifies the committed bundle matches a fresh `npm run build` from src/, so a
+# PR that edits src/index.js without rebuilding is caught instead of shipping a
+# stale bundle.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dist-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run build
+      - name: Verify dist/ matches a fresh build
+        run: |
+          if ! git diff --exit-code -- dist/; then
+            echo "::error::dist/ is out of date — run 'npm run build' and commit the result."
+            exit 1
+          fi
